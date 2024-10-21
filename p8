@@ -1,72 +1,89 @@
-package P9;
+package P8;
 
-import java.util.Scanner;
+import java.util.*;
 
-public class RK {
-    private final static int d = 256;  // number of characters in the input alphabet
-    private final static int q = 101;  // a prime number
+public class FordF {
+    private int V;
+    private int[][] capacity;
 
-    public static void search(String pattern, String text) {
-        int M = pattern.length();
-        int N = text.length();
-        int i, j;
-        int p = 0; // hash value for pattern
-        int t = 0; // hash value for text
-        int h = 1;
+    public FordF(int V) {
+        this.V = V;
+        capacity = new int[V][V];
+    }
 
-        // The value of h would be "pow(d, M-1)%q"
-        for (i = 0; i < M - 1; i++) {
-            h = (h * d) % q;
-        }
+    public void addEdge(int u, int v, int cap) {
+        capacity[u][v] = cap;
+    }
 
-        // Calculate the hash value of pattern and first window of text
-        for (i = 0; i < M; i++) {
-            p = (d * p + pattern.charAt(i)) % q;
-            t = (d * t + text.charAt(i)) % q;
-        }
+    private boolean bfs(int[][] residual, int s, int t, int[] parent) {
+        boolean[] visited = new boolean[V];
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(s);
+        visited[s] = true;
+        parent[s] = -1;
 
-        // Slide the pattern over text one by one
-        for (i = 0; i <= N - M; i++) {
-
-            // Check the hash values of current window of text and pattern.
-            // If the hash values match then only check for characters one by one
-            if (p == t) {
-                /* Check for characters one by one */
-                for (j = 0; j < M; j++) {
-                    if (text.charAt(i + j) != pattern.charAt(j)) {
-                        break;
-                    }
-                }
-
-                // if p == t and pattern[0...M-1] = text[i, i+1, ...i+M-1]
-                if (j == M) {
-                    System.out.println("Pattern found at index " + i);
-                }
-            }
-
-            // Calculate hash value for next window of text: Remove leading digit, add trailing digit
-            if (i < N - M) {
-                t = (d * (t - text.charAt(i) * h) + text.charAt(i + M)) % q;
-
-                // We might get negative value of t, converting it to positive
-                if (t < 0) {
-                    t = (t + q);
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            for (int v = 0; v < V; v++) {
+                if (!visited[v] && residual[u][v] > 0) {
+                    queue.add(v);
+                    parent[v] = u;
+                    visited[v] = true;
+                    if (v == t) return true;
                 }
             }
         }
+        return false;
+    }
+
+    public int fordFulkerson(int s, int t) {
+        int[][] residual = new int[V][V];
+        for (int i = 0; i < V; i++) System.arraycopy(capacity[i], 0, residual[i], 0, V);
+        int maxFlow = 0, pathFlow;
+        int[] parent = new int[V];
+
+        while (bfs(residual, s, t, parent)) {
+            pathFlow = Integer.MAX_VALUE;
+            for (int v = t; v != s; v = parent[v]) {
+                int u = parent[v];
+                pathFlow = Math.min(pathFlow, residual[u][v]);
+            }
+
+            for (int v = t; v != s; v = parent[v]) {
+                int u = parent[v];
+                residual[u][v] -= pathFlow;
+                residual[v][u] += pathFlow;
+            }
+
+            maxFlow += pathFlow;
+        }
+
+        return maxFlow;
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of vertices: ");
+        int V = sc.nextInt();
+        FordF graph = new FordF(V);
 
-        System.out.print("Enter the text: ");
-        String text = scanner.nextLine();
+        System.out.print("Enter number of edges: ");
+        int E = sc.nextInt();
 
-        System.out.print("Enter the pattern: ");
-        String pattern = scanner.nextLine();
+        System.out.println("Enter edges with capacities (source destination capacity):");
+        for (int i = 0; i < E; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int cap = sc.nextInt();
+            graph.addEdge(u, v, cap);
+        }
 
-        search(pattern, text);
+        System.out.print("Enter source vertex: ");
+        int s = sc.nextInt();
+        System.out.print("Enter sink vertex: ");
+        int t = sc.nextInt();
 
-        scanner.close();
+        System.out.println("The maximum possible flow is " + graph.fordFulkerson(s, t));
+        sc.close();
     }
 }
