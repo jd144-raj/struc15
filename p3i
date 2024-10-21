@@ -1,0 +1,122 @@
+package P3;
+
+import java.util.Arrays;
+import java.util.Random;
+
+public class HQsort {
+
+    public static void main(String[] args) {
+        int size = 100000; // Size of the array
+        int[] array1 = generateRandomArray(size);
+        int[] array2 = Arrays.copyOf(array1, array1.length); // Copy of the array to use for a different sort
+
+        // Measure time for Heap Sort
+        long startTime = System.nanoTime();
+        heapSort(array1);
+        long endTime = System.nanoTime();
+        long heapSortTime = endTime - startTime;
+        System.out.println("Time taken by Heap Sort: " + heapSortTime + " ns");
+
+        // Measure time for Quick Sort
+        startTime = System.nanoTime();
+        quickSort(array2, 0, array2.length - 1);
+        endTime = System.nanoTime();
+        long quickSortTime = endTime - startTime;
+        System.out.println("Time taken by Quick Sort: " + quickSortTime + " ns");
+    }
+
+    // Function to generate a random array
+    public static int[] generateRandomArray(int size) {
+        Random random = new Random();
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = random.nextInt(size);
+        }
+        return array;
+    }
+
+    // Heap Sort
+    public static void heapSort(int[] array) {
+        int n = array.length;
+
+        // Build heap (rearrange array)
+        for (int i = n / 2 - 1; i >= 0; i--) {
+            heapify(array, n, i);
+        }
+
+        // One by one extract an element from the heap
+        for (int i = n - 1; i > 0; i--) {
+            // Move current root to end
+            int temp = array[0];
+            array[0] = array[i];
+            array[i] = temp;
+
+            // Call max heapify on the reduced heap
+            heapify(array, i, 0);
+        }
+    }
+
+    // To heapify a subtree rooted with node i which is an index in array[].
+    // n is the size of the heap
+    public static void heapify(int[] array, int n, int i) {
+        int largest = i; // Initialize largest as root
+        int left = 2 * i + 1; // left = 2*i + 1
+        int right = 2 * i + 2; // right = 2*i + 2
+
+        // If left child is larger than root
+        if (left < n && array[left] > array[largest]) {
+            largest = left;
+        }
+
+        // If right child is larger than the largest so far
+        if (right < n && array[right] > array[largest]) {
+            largest = right;
+        }
+
+        // If largest is not root
+        if (largest != i) {
+            int swap = array[i];
+            array[i] = array[largest];
+            array[largest] = swap;
+
+            // Recursively heapify the affected sub-tree
+            heapify(array, n, largest);
+        }
+    }
+
+    // Quick Sort
+    public static void quickSort(int[] array, int low, int high) {
+        if (low < high) { //array.elements > 1
+            // pi is partitioning index, array[pi] is now at right place
+            int pi = partition(array, low, high);
+
+            // Recursively sort elements before and after partition
+            quickSort(array, low, pi - 1); //left subarray
+            quickSort(array, pi + 1, high); //right subarray
+        }
+    }
+
+    public static int partition(int[] array, int low, int high) {
+        int pivot = array[high]; //last element as pivot
+        int i = (low - 1); // Index of smaller element
+
+        for (int j = low; j < high; j++) {
+            // If the current element is smaller than or equal to the pivot
+            if (array[j] <= pivot) {
+                i++; //increment
+
+                // Swap array[i] and array[j]
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+
+        // Swap array[i+1] and array[high/pivot] for correct pos
+        int temp = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = temp;
+
+        return i + 1;
+    }
+}
