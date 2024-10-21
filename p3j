@@ -1,0 +1,102 @@
+package sort2;
+
+import java.util.*;
+
+public class sort2 {
+    public static void main(String[] args) {
+        int[] array = {10, 3, 15, 7, 8, 23, 74, 18, 5, 1};
+        List<Long> quickSortTimes = new ArrayList<>();
+        List<Long> heapSortTimes = new ArrayList<>();
+
+        // Quick Sort
+        quickSortWithTime(array.clone(), 0, array.length - 1, quickSortTimes);
+
+        // Heap Sort
+        heapSortWithTime(array.clone(), heapSortTimes);
+
+        // Print and Export Data
+        exportData("QuickSort", quickSortTimes);
+        exportData("HeapSort", heapSortTimes);
+    }
+
+    // Quick Sort Implementation with time tracking
+    public static void quickSortWithTime(int[] array, int low, int high, List<Long> times) {
+        if (low < high) {
+            int pi = partitionWithTime(array, low, high, times);
+            quickSortWithTime(array, low, pi - 1, times);
+            quickSortWithTime(array, pi + 1, high, times);
+        }
+    }
+
+    public static int partitionWithTime(int[] array, int low, int high, List<Long> times) {
+        int pivot = array[high];
+        int i = (low - 1);
+        for (int j = low; j < high; j++) {
+            if (array[j] <= pivot) {
+                i++;
+                long startTime = System.nanoTime();
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+                long endTime = System.nanoTime();
+                times.add(endTime - startTime);
+            }
+        }
+        long startTime = System.nanoTime();
+        int temp = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = temp;
+        long endTime = System.nanoTime();
+        times.add(endTime - startTime);
+        return i + 1;
+    }
+
+    // Heap Sort Implementation with time tracking
+    public static void heapSortWithTime(int[] array, List<Long> times) {
+        int n = array.length;
+        for (int i = n / 2 - 1; i >= 0; i--) {
+            heapifyWithTime(array, n, i, times);
+        }
+        for (int i = n - 1; i > 0; i--) {
+            long startTime = System.nanoTime();
+            int temp = array[0];
+            array[0] = array[i];
+            array[i] = temp;
+            long endTime = System.nanoTime();
+            times.add(endTime - startTime);
+
+            heapifyWithTime(array, i, 0, times);
+        }
+    }
+
+    public static void heapifyWithTime(int[] array, int n, int i, List<Long> times) {
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        if (left < n && array[left] > array[largest])
+            largest = left;
+
+        if (right < n && array[right] > array[largest])
+            largest = right;
+
+        if (largest != i) {
+            long startTime = System.nanoTime();
+            int swap = array[i];
+            array[i] = array[largest];
+            array[largest] = swap;
+            long endTime = System.nanoTime();
+            times.add(endTime - startTime);
+
+            heapifyWithTime(array, n, largest, times);
+        }
+    }
+
+    // Method to export data to a file
+    public static void exportData(String sortType, List<Long> times) {
+        System.out.println("\n" + sortType + " Times:");
+        for (int i = 0; i < times.size(); i++) {
+            System.out.println("Element " + (i + 1) + ": " + times.get(i) + " ns");
+        }
+    }
+}
