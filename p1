@@ -1,0 +1,139 @@
+package P2;
+
+public class DCLL {
+
+    // Node class representing each node in the list
+    class Node {
+        int data;
+        Node prev, next;
+
+        Node(int data) {
+            this.data = data;
+        }
+    }
+
+    private Node head = null;
+
+    // Method to add a node at the end of the list
+    public void addToEnd(int data) {
+        Node newNode = new Node(data);
+
+        if (head == null) {
+            head = newNode;
+            head.next = head;
+            head.prev = head;
+        } else {
+            Node last = head.prev;
+            last.next = newNode;
+            newNode.prev = last;
+            newNode.next = head;
+            head.prev = newNode;
+        }
+    }
+
+    // Method to add a node at the beginning of the list
+    public void addToBeginning(int data) {
+        Node newNode = new Node(data);
+
+        if (head == null) {
+            head = newNode;
+            head.next = head;
+            head.prev = head;
+        } else {
+            Node last = head.prev;
+            newNode.next = head;
+            newNode.prev = last;
+            head.prev = newNode;
+            last.next = newNode;
+            head = newNode;
+        }
+    }
+
+    // Method to display the list from the beginning
+    public void displayForward() {
+        if (head == null) {
+            System.out.println("List is empty");
+            return;
+        }
+
+        Node temp = head;
+        do {
+            System.out.print(temp.data + " ");
+            temp = temp.next;
+        } while (temp != head);
+        System.out.println();
+    }
+
+    // Method to display the list from the end
+    public void displayBackward() {
+        if (head == null) {
+            System.out.println("List is empty");
+            return;
+        }
+
+        Node last = head.prev;
+        Node temp = last;
+        do {
+            System.out.print(temp.data + " ");
+            temp = temp.prev;
+        } while (temp != last);
+        System.out.println();
+    }
+
+    // Method to delete a node from the list
+    public void deleteNode(int data) {
+        if (head == null) {
+            System.out.println("List is empty");
+            return;
+        }
+
+        Node temp = head;
+
+        do {
+            if (temp.data == data) {
+                if (temp == head && head.next == head) {
+                    head = null;
+                } else {
+                    Node prev = temp.prev;
+                    Node next = temp.next;
+
+                    prev.next = next;
+                    next.prev = prev;
+
+                    if (temp == head) {
+                        head = next;
+                    }
+                }
+                return;
+            }
+            temp = temp.next;
+        } while (temp != head);
+
+        System.out.println("Node with data " + data + " not found.");
+    }
+
+    public static void main(String[] args) {
+        DCLL list = new DCLL();
+
+        // Adding elements to the list
+        list.addToEnd(10);
+        list.addToEnd(20);
+        list.addToEnd(30);
+        list.addToBeginning(5);
+
+        // Display the list
+        System.out.println("List in forward direction:");
+        list.displayForward();
+
+        System.out.println("List in backward direction:");
+        list.displayBackward();
+
+        // Delete a node
+        list.deleteNode(20);
+        System.out.println("List after deleting 20:");
+        list.displayForward();
+
+        // Try to delete a non-existing node
+        list.deleteNode(40);
+    }
+}
