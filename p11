@@ -1,0 +1,70 @@
+package P11;
+import java.util.Scanner;
+
+public class FinAuto {
+
+    static final int NO_OF_CHARS = 256;
+
+    // Function to build the finite automaton
+    public static void buildFiniteAutomata(String pattern, int M, int[][] automata) {
+        int i, lps = 0, x;
+
+        // Initialize the transition for state 0
+        for (x = 0; x < NO_OF_CHARS; x++) {
+            automata[0][x] = 0;
+        }
+        automata[0][pattern.charAt(0)] = 1;
+
+        // Build the automata
+        for (i = 1; i <= M; i++) {
+            for (x = 0; x < NO_OF_CHARS; x++) {
+                automata[i][x] = automata[lps][x];
+            }
+            if (i < M) {
+                automata[i][pattern.charAt(i)] = i + 1;
+                lps = automata[lps][pattern.charAt(i)];
+            }
+        }
+    }
+
+    // Function to search for the pattern in the text using the automaton
+    public static void search(String pattern, String text) {
+        int M = pattern.length();
+        int N = text.length();
+
+        int[][] automata = new int[M + 1][NO_OF_CHARS];
+
+        // Build the automaton for the given pattern
+        buildFiniteAutomata(pattern, M, automata);
+
+        // Process the text through the built automaton
+        int i, state = 0;
+        for (i = 0; i < N; i++) {
+            state = automata[state][text.charAt(i)];
+            if (state == M) {
+                System.out.println("Pattern found at index " + (i - M + 1));
+            }
+        }
+    }
+
+    // Main method to test the finite automata string matching
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input the text
+        System.out.print("Enter the text: ");
+        String text = scanner.nextLine();
+
+        // Input the pattern
+        System.out.print("Enter the pattern: ");
+        String pattern = scanner.nextLine();
+
+        System.out.println("Text: " + text);
+        System.out.println("Pattern: " + pattern);
+
+        // Search for the pattern in the text
+        search(pattern, text);
+
+        scanner.close();
+    }
+}
