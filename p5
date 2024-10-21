@@ -1,0 +1,87 @@
+package P5;
+
+import java.util.Scanner;
+
+public class NQP {
+    
+    private static int N;
+    private static int[][] board;
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Input the size of the board (N)
+        System.out.print("Enter the number of queens (N): ");
+        N = scanner.nextInt();
+        
+        // Initialize the board
+        board = new int[N][N];
+        
+        // Solve the N-Queens problem
+        if (solveNQueens(0)) {
+            printBoard();
+        } else {
+            System.out.println("No solution exists for " + N + " queens.");
+        }
+    }
+    
+    // Function to solve the N-Queens problem using backtracking
+    private static boolean solveNQueens(int col) {
+        if (col >= N) {
+            return true; // All queens are placed
+        }
+        
+        for (int i = 0; i < N; i++) {
+            if (isSafe(i, col)) {
+                // Place the queen
+                board[i][col] = 1;
+                
+                // Recur to place the rest of the queens
+                if (solveNQueens(col + 1)) {
+                    return true;
+                }
+                
+                // Backtrack if placing queen doesn't lead to a solution
+                board[i][col] = 0;
+            }
+        }
+        
+        return false; // If no place is found
+    }
+    
+    // Function to check if it's safe to place a queen at board[row][col]
+    private static boolean isSafe(int row, int col) {
+        // Check this row on the left side
+        for (int i = 0; i < col; i++) {
+            if (board[row][i] == 1) {
+                return false;
+            }
+        }
+        
+        // Check upper diagonal on the left side
+        for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] == 1) {
+                return false;
+            }
+        }
+        
+        // Check lower diagonal on the left side
+        for (int i = row, j = col; i < N && j >= 0; i++, j--) {
+            if (board[i][j] == 1) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Function to print the board
+    private static void printBoard() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+}
