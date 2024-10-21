@@ -1,0 +1,49 @@
+package P13;
+
+import java.util.*;
+
+public class SetCover {
+
+    // Function to find the minimum set cover using a greedy approach
+    public static List<Set<Integer>> findSetCover(Set<Integer> universe, List<Set<Integer>> subsets) {
+        List<Set<Integer>> cover = new ArrayList<>();
+        Set<Integer> covered = new HashSet<>();
+
+        while (!covered.containsAll(universe)) {
+            Set<Integer> bestSet = Collections.max(subsets, Comparator.comparingInt(s -> {
+                Set<Integer> temp = new HashSet<>(s);
+                temp.removeAll(covered);
+                return temp.size();
+            }));
+
+            cover.add(bestSet);
+            covered.addAll(bestSet);
+        }
+
+        return cover;
+    }
+
+    // Main method to test the Set Covering Problem algorithm
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the elements of the universal set (space-separated): ");
+        Set<Integer> universe = new HashSet<>(Arrays.asList(scanner.nextLine().split(" ")).stream().map(Integer::parseInt).toList());
+
+        System.out.print("Enter the number of subsets: ");
+        int m = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        List<Set<Integer>> subsets = new ArrayList<>();
+        for (int i = 0; i < m; i++) {
+            System.out.print("Enter the elements of subset " + (i + 1) + " (space-separated): ");
+            Set<Integer> subset = new HashSet<>(Arrays.asList(scanner.nextLine().split(" ")).stream().map(Integer::parseInt).toList());
+            subsets.add(subset);
+        }
+
+        List<Set<Integer>> cover = findSetCover(universe, subsets);
+        System.out.println("The minimum set cover is: " + cover);
+
+        scanner.close();
+    }
+}
