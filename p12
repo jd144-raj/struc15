@@ -1,0 +1,60 @@
+package P12;
+
+import java.util.*;
+
+public class VertexCover {
+
+    // Function to find the vertex cover using a greedy approach
+    public static void findVertexCover(int[][] graph, int V) {
+        // A boolean array to keep track of visited vertices
+        boolean[] visited = new boolean[V];
+
+        // Consider all edges one by one
+        for (int u = 0; u < V; u++) {
+            // If the vertex u is not yet visited
+            if (!visited[u]) {
+                // Try to find an adjacent vertex v which is not visited
+                for (int v = 0; v < V; v++) {
+                    if (graph[u][v] == 1 && !visited[v]) {
+                        // Add the edge (u, v) to the result
+                        visited[u] = true;
+                        visited[v] = true;
+                        break; // Move to the next vertex u
+                    }
+                }
+            }
+        }
+
+        // Print the vertex cover
+        System.out.println("The Vertex Cover is:");
+        for (int i = 0; i < V; i++) {
+            if (visited[i]) {
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println();
+    }
+
+    // Main method to test the Vertex Cover algorithm
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input the number of vertices
+        System.out.print("Enter the number of vertices: ");
+        int V = scanner.nextInt();
+
+        // Input the adjacency matrix of the graph
+        int[][] graph = new int[V][V];
+        System.out.println("Enter the adjacency matrix of the graph:");
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                graph[i][j] = scanner.nextInt();
+            }
+        }
+
+        // Find and print the vertex cover
+        findVertexCover(graph, V);
+
+        scanner.close();
+    }
+}
