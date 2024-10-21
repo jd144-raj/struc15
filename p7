@@ -1,72 +1,87 @@
-package P9;
+package P7;
 
-import java.util.Scanner;
+import java.util.*;
 
-public class RK {
-    private final static int d = 256;  // number of characters in the input alphabet
-    private final static int q = 101;  // a prime number
-
-    public static void search(String pattern, String text) {
-        int M = pattern.length();
-        int N = text.length();
-        int i, j;
-        int p = 0; // hash value for pattern
-        int t = 0; // hash value for text
-        int h = 1;
-
-        // The value of h would be "pow(d, M-1)%q"
-        for (i = 0; i < M - 1; i++) {
-            h = (h * d) % q;
-        }
-
-        // Calculate the hash value of pattern and first window of text
-        for (i = 0; i < M; i++) {
-            p = (d * p + pattern.charAt(i)) % q;
-            t = (d * t + text.charAt(i)) % q;
-        }
-
-        // Slide the pattern over text one by one
-        for (i = 0; i <= N - M; i++) {
-
-            // Check the hash values of current window of text and pattern.
-            // If the hash values match then only check for characters one by one
-            if (p == t) {
-                /* Check for characters one by one */
-                for (j = 0; j < M; j++) {
-                    if (text.charAt(i + j) != pattern.charAt(j)) {
-                        break;
-                    }
-                }
-
-                // if p == t and pattern[0...M-1] = text[i, i+1, ...i+M-1]
-                if (j == M) {
-                    System.out.println("Pattern found at index " + i);
-                }
-            }
-
-            // Calculate hash value for next window of text: Remove leading digit, add trailing digit
-            if (i < N - M) {
-                t = (d * (t - text.charAt(i) * h) + text.charAt(i + M)) % q;
-
-                // We might get negative value of t, converting it to positive
-                if (t < 0) {
-                    t = (t + q);
-                }
-            }
+public class DAG {
+    
+    static class Edge {
+        int dest, weight;
+        Edge(int dest, int weight) {
+            this.dest = dest;
+            this.weight = weight;
         }
     }
 
+    private int V;
+    private List<List<Edge>> adjList;
+
+    public DAG(int V) {
+        this.V = V;
+        adjList = new ArrayList<>(V);
+        for (int i = 0; i < V; i++) {
+            adjList.add(new ArrayList<>());
+        }
+    }
+
+    public void addEdge(int src, int dest, int weight) {
+        adjList.get(src).add(new Edge(dest, weight));
+    }
+
+    public void findShortestPaths(int source) {
+        Stack<Integer> stack = new Stack<>();
+        int[] dist = new int[V];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[source] = 0;
+
+        boolean[] visited = new boolean[V];
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) topologicalSort(i, visited, stack);
+        }
+
+        while (!stack.isEmpty()) {
+            int u = stack.pop();
+            if (dist[u] != Integer.MAX_VALUE) {
+                for (Edge edge : adjList.get(u)) {
+                    if (dist[edge.dest] > dist[u] + edge.weight) {
+                        dist[edge.dest] = dist[u] + edge.weight;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < V; i++) {
+            System.out.println("Distance from " + source + " to " + i + " is " + (dist[i] == Integer.MAX_VALUE ? "INF" : dist[i]));
+        }
+    }
+
+    private void topologicalSort(int v, boolean[] visited, Stack<Integer> stack) {
+        visited[v] = true;
+        for (Edge edge : adjList.get(v)) {
+            if (!visited[edge.dest]) topologicalSort(edge.dest, visited, stack);
+        }
+        stack.push(v);
+    }
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of vertices: ");
+        int V = sc.nextInt();
+        DAG graph = new DAG(V);
 
-        System.out.print("Enter the text: ");
-        String text = scanner.nextLine();
+        System.out.print("Enter number of edges: ");
+        int E = sc.nextInt();
 
-        System.out.print("Enter the pattern: ");
-        String pattern = scanner.nextLine();
+        System.out.println("Enter edges (source, destination, weight): ");
+        for (int i = 0; i < E; i++) {
+            int src = sc.nextInt();
+            int dest = sc.nextInt();
+            int weight = sc.nextInt();
+            graph.addEdge(src, dest, weight);
+        }
 
-        search(pattern, text);
-
-        scanner.close();
+        System.out.print("Enter source vertex: ");
+        int source = sc.nextInt();
+        graph.findShortestPaths(source);
+        sc.close();
     }
 }
